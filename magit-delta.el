@@ -88,7 +88,7 @@ https://github.com/dandavison/delta"
   (list
    "--theme" (if (eq (frame-parameter nil 'background-mode) 'light)
                  magit-delta-light-theme magit-delta-dark-theme)
-   "--max-line-distance=0.6"
+   "--max-line-distance" "0.6"
    "--24-bit-color" (if xterm-color--support-truecolor "always" "never")
    "--color-only"))
 
