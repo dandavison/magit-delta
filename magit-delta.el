@@ -104,12 +104,10 @@ https://github.com/dandavison/delta"
     (set-file-modes git-wrapper-file 500)
     git-wrapper-file))
 
-(defun magit-delta-convert-ansi-escape-sequences-using-xterm-color (beg end)
-  (let ((pos (point)))
-    (save-restriction
-      (narrow-to-region beg end)
-      (let ((buffer-read-only nil))
-        (xterm-color-colorize-buffer 'use-overlays)))
+(defun magit-delta-convert-ansi-escape-sequences-using-xterm-color ()
+  (let ((pos (point))
+        (buffer-read-only nil))
+    (xterm-color-colorize-buffer 'use-overlays)
     (goto-char pos)))
 
 (provide 'magit-delta)
