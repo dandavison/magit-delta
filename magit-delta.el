@@ -94,7 +94,9 @@ https://github.com/dandavison/delta"
 
 (defun magit-delta--install-git-wrapper ()
   (let ((git-wrapper-file
-         (make-temp-file "magit-delta-git-wrapper-")))
+         (expand-file-name "magit-delta-git" temporary-file-directory)))
+    (when (file-exists-p git-wrapper-file)
+      (delete-file git-wrapper-file))
     (with-temp-file git-wrapper-file
       (insert (format magit-delta--git-wrapper-template
                       magit-git-executable magit-delta-delta-executable
