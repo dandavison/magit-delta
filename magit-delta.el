@@ -16,36 +16,13 @@
 (defvar magit-delta-delta-executable "delta"
   "The delta executable on your system to be used by Magit.")
 
-(defvar magit-delta--git-wrapper-template "#!/bin/bash
-set -o pipefail
-
-GIT=\"%s\"
-DELTA=\"%s\"
-DELTA_ARGS=(
-    %s
-)
-
-delta_should_handle () {
-  for arg in \"$@\"; do
-      [[ ($arg = diff || $arg = show) ]] && break
-  done
-}
-
-if delta_should_handle \"$@\"; then
-    \"$GIT\" \"$@\" | \"$DELTA\" \"${DELTA_ARGS[@]}\"
-else
-    exec \"$GIT\" \"$@\"
-fi")
-
 (defvar magit-delta-light-theme "GitHub"
   "The color theme to use when Emacs has a light background.")
 
 (defvar magit-delta-dark-theme "Monokai Extended"
   "The color theme to use when Emacs has a dark background.")
 
-(setq magit-delta-git-executable nil
-      magit-delta-magit-git-executable--orig-value magit-git-executable
-      magit-delta--magit-diff-refine-hunk--orig-value magit-diff-refine-hunk
+(setq magit-delta--magit-diff-refine-hunk--orig-value magit-diff-refine-hunk
       magit-diff-convert-ansi-escape-sequences-function--orig-value magit-diff-convert-ansi-escape-sequences-function
       magit-diff-convert-ansi-escape-sequences-always--orig-value magit-diff-convert-ansi-escape-sequences-always)
 
@@ -63,22 +40,16 @@ https://github.com/dandavison/delta"
            magit-diff-removed-highlight)))
     (cond
      (magit-delta-mode
-      (setq magit-delta-git-executable (magit-delta--install-git-wrapper)
-            magit-git-executable magit-delta-git-executable
-            magit-delta--magit-diff-refine-hunk--orig-value magit-diff-refine-hunk
+      (setq magit-delta--magit-diff-refine-hunk--orig-value magit-diff-refine-hunk
             magit-diff-convert-ansi-escape-sequences-always t
-            magit-diff-convert-ansi-escape-sequences-function #'magit-delta-convert-ansi-escape-sequences-using-xterm-color
+            magit-diff-convert-ansi-escape-sequences-function #'magit-delta-call-delta-and-convert-ansi-escape-sequences
             face-remapping-alist (nconc
                                   (--remove (member (car it) magit-faces-to-override)
                                             face-remapping-alist)
                                   (--map (cons it 'default) magit-faces-to-override))
             magit-diff-refine-hunk nil))
      ('deactivate
-      (when magit-delta-git-executable
-        (delete-file magit-delta-git-executable)
-        (setq magit-delta-git-executable nil))
-      (setq magit-git-executable magit-delta-magit-git-executable--orig-value
-            magit-diff-convert-ansi-escape-sequences-always magit-diff-convert-ansi-escape-sequences-always--orig-value
+      (setq magit-diff-convert-ansi-escape-sequences-always magit-diff-convert-ansi-escape-sequences-always--orig-value
             magit-diff-convert-ansi-escape-sequences-function magit-diff-convert-ansi-escape-sequences-function--orig-value
             face-remapping-alist (--remove (member (car it) magit-faces-to-override)
                                            face-remapping-alist)
@@ -92,21 +63,9 @@ https://github.com/dandavison/delta"
    "--24-bit-color" (if xterm-color--support-truecolor "always" "never")
    "--color-only"))
 
-(defun magit-delta--install-git-wrapper ()
-  (let ((git-wrapper-file
-         (expand-file-name "magit-delta-git" temporary-file-directory)))
-    (when (file-exists-p git-wrapper-file)
-      (delete-file git-wrapper-file))
-    (with-temp-file git-wrapper-file
-      (insert (format magit-delta--git-wrapper-template
-                      magit-git-executable magit-delta-delta-executable
-                      (string-join
-                       (mapcar #'shell-quote-argument (magit-delta-delta-args))
-                       " "))))
-    (set-file-modes git-wrapper-file 500)
-    git-wrapper-file))
-
-(defun magit-delta-convert-ansi-escape-sequences-using-xterm-color ()
+(defun magit-delta-call-delta-and-convert-ansi-escape-sequences ()
+  (apply #'call-process-region
+         (point-min) (point-max) magit-delta-delta-executable t t nil (magit-delta-delta-args))
   (let ((buffer-read-only nil))
     (xterm-color-colorize-buffer 'use-overlays)))
 
