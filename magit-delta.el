@@ -22,9 +22,9 @@
 (defvar magit-delta-dark-theme "Monokai Extended"
   "The color theme to use when Emacs has a dark background.")
 
-(setq magit-delta--magit-diff-refine-hunk--orig-value magit-diff-refine-hunk
-      magit-diff-preprocess-git-output-function--orig-value magit-diff-preprocess-git-output-function
-      magit-diff-preprocess-git-output-always--orig-value magit-diff-preprocess-git-output-always)
+(setq magit-diff-preprocess-git-output-always--orig-value nil
+      magit-diff-preprocess-git-output-function--orig-value nil
+      magit-delta--magit-diff-refine-hunk--orig-value nil)
 
 (define-minor-mode magit-delta-mode
   "Use delta to view diffs in magit.
@@ -40,20 +40,25 @@ https://github.com/dandavison/delta"
            magit-diff-removed-highlight)))
     (cond
      (magit-delta-mode
-      (setq magit-delta--magit-diff-refine-hunk--orig-value magit-diff-refine-hunk
+      (setq magit-diff-preprocess-git-output-always--orig-value magit-diff-preprocess-git-output-always
             magit-diff-preprocess-git-output-always t
+
+            magit-diff-preprocess-git-output-function--orig-value magit-diff-preprocess-git-output-function
             magit-diff-preprocess-git-output-function #'magit-delta-call-delta-and-convert-ansi-escape-sequences
+
+            magit-delta--magit-diff-refine-hunk--orig-value magit-diff-refine-hunk
+            magit-diff-refine-hunk nil
+
             face-remapping-alist (nconc
                                   (--remove (member (car it) magit-faces-to-override)
                                             face-remapping-alist)
-                                  (--map (cons it 'default) magit-faces-to-override))
-            magit-diff-refine-hunk nil))
+                                  (--map (cons it 'default) magit-faces-to-override))))
      ('deactivate
       (setq magit-diff-preprocess-git-output-always magit-diff-preprocess-git-output-always--orig-value
             magit-diff-preprocess-git-output-function magit-diff-preprocess-git-output-function--orig-value
+            magit-diff-refine-hunk magit-delta--magit-diff-refine-hunk--orig-value
             face-remapping-alist (--remove (member (car it) magit-faces-to-override)
-                                           face-remapping-alist)
-            magit-diff-refine-hunk magit-delta--magit-diff-refine-hunk--orig-value)))))
+                                           face-remapping-alist))))))
 
 (defun magit-delta-delta-args ()
   (list
