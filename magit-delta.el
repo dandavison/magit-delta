@@ -84,7 +84,7 @@ https://github.com/dandavison/delta"
                                            face-remapping-alist)
             magit-diff-refine-hunk magit-delta--magit-diff-refine-hunk--orig-value)))))
 
-(defun magit-delta-make-delta-options ()
+(defun magit-delta-delta-args ()
   (list
    "--theme" (if (eq (frame-parameter nil 'background-mode) 'light)
                  magit-delta-light-theme magit-delta-dark-theme)
@@ -101,7 +101,7 @@ https://github.com/dandavison/delta"
       (insert (format magit-delta--git-wrapper-template
                       magit-git-executable magit-delta-delta-executable
                       (string-join
-                       (mapcar #'shell-quote-argument (magit-delta-make-delta-options))
+                       (mapcar #'shell-quote-argument (magit-delta-delta-args))
                        " "))))
     (set-file-modes git-wrapper-file 500)
     git-wrapper-file))
@@ -111,4 +111,5 @@ https://github.com/dandavison/delta"
     (xterm-color-colorize-buffer 'use-overlays)))
 
 (provide 'magit-delta)
+
 ;;; magit-delta.el ends here
