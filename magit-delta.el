@@ -107,10 +107,8 @@ https://github.com/dandavison/delta"
     git-wrapper-file))
 
 (defun magit-delta-convert-ansi-escape-sequences-using-xterm-color ()
-  (let ((pos (set-marker (make-marker) (point)))
-        (buffer-read-only nil))
-    (xterm-color-colorize-buffer 'use-overlays)
-    (goto-char pos)))
+  (let ((buffer-read-only nil))
+    (xterm-color-colorize-buffer 'use-overlays)))
 
 (provide 'magit-delta)
 ;;; magit-delta.el ends here
