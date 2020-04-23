@@ -11,7 +11,7 @@ M-x magit-delta-mode
 <br>
 <br>
 <table><tr><td>
-  <img width=600px src="https://user-images.githubusercontent.com/52205/79643434-ec5c1780-8170-11ea-8352-afe896ba51b0.png" alt="image" />
+  <img width=600px src="https://user-images.githubusercontent.com/52205/80056404-23745500-84f2-11ea-9ecd-832376faf2f1.png" alt="image" />
 </td></tr></table>
 
 
