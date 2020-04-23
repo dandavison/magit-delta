@@ -22,6 +22,28 @@
 (defvar magit-delta-dark-theme "Monokai Extended"
   "The color theme to use when Emacs has a dark background.")
 
+(defvar magit-delta-delta-args
+  `("--max-line-distance" "0.6"
+    "--24-bit-color" ,(if xterm-color--support-truecolor "always" "never")
+    "--color-only")
+  "Delta command line args as a list of strings.
+
+--color-only is required in order to use delta with magit; it
+will be added if not present.")
+
+(defun magit-delta--make-delta-args ()
+  "Make final list of delta command-line arguments."
+  (let ((args magit-delta-delta-args))
+    (unless (-intersection '("--theme" "--light" "--dark") args)
+      (setq args (nconc
+                  (list "--theme"
+                        (if (eq (frame-parameter nil 'background-mode) 'light)
+                            magit-delta-light-theme magit-delta-dark-theme))
+                       args)))
+    (unless (member "--color-only" args)
+      (setq args (cons "--color-only" args)))
+    args))
+
 (setq magit-diff-preprocess-git-output-always--orig-value nil
       magit-diff-preprocess-git-output-function--orig-value nil
       magit-delta--magit-diff-refine-hunk--orig-value nil)
@@ -70,7 +92,8 @@ https://github.com/dandavison/delta"
 
 (defun magit-delta-call-delta-and-convert-ansi-escape-sequences ()
   (apply #'call-process-region
-         (point-min) (point-max) magit-delta-delta-executable t t nil (magit-delta-delta-args))
+         (point-min) (point-max)
+         magit-delta-delta-executable t t nil (magit-delta--make-delta-args))
   (let ((buffer-read-only nil))
     (xterm-color-colorize-buffer 'use-overlays)))
 
