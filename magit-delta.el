@@ -55,13 +55,8 @@ will be added if not present.")
       (setq args (cons "--color-only" args)))
     args))
 
-(defvar magit-diff-preprocess-git-output-always--orig-value nil)
-(defvar magit-diff-preprocess-git-output-function--orig-value nil)
 (defvar magit-delta--magit-diff-refine-hunk--orig-value nil)
 
-(eval-when-compile
-  (defvar magit-diff-preprocess-git-output-always)
-  (defvar magit-diff-preprocess-git-output-function))
 
 ;;;###autoload
 (define-minor-mode magit-delta-mode
@@ -78,19 +73,8 @@ https://github.com/dandavison/delta"
            magit-diff-removed-highlight)))
     (cond
      (magit-delta-mode
-      (setq magit-diff-preprocess-git-output-always--orig-value
-            magit-diff-preprocess-git-output-always
-
-            magit-diff-preprocess-git-output-always
-            t
-
-            magit-diff-preprocess-git-output-function--orig-value
-            magit-diff-preprocess-git-output-function
-
-            magit-diff-preprocess-git-output-function
-            #'magit-delta-call-delta-and-convert-ansi-escape-sequences
-
-            magit-delta--magit-diff-refine-hunk--orig-value
+      (add-hook 'magit-diff-wash-diffs-hook #'magit-delta-call-delta-and-convert-ansi-escape-sequences)
+      (setq magit-delta--magit-diff-refine-hunk--orig-value
             magit-diff-refine-hunk
 
             magit-diff-refine-hunk
@@ -102,13 +86,8 @@ https://github.com/dandavison/delta"
                        face-remapping-alist)
              (--map (cons it 'default) magit-faces-to-override))))
      ('deactivate
-      (setq magit-diff-preprocess-git-output-always
-            magit-diff-preprocess-git-output-always--orig-value
-
-            magit-diff-preprocess-git-output-function
-            magit-diff-preprocess-git-output-function--orig-value
-
-            magit-diff-refine-hunk
+      (remove-hook 'magit-diff-wash-diffs-hook #'magit-delta-call-delta-and-convert-ansi-escape-sequences)
+      (setq magit-diff-refine-hunk
             magit-delta--magit-diff-refine-hunk--orig-value
 
             face-remapping-alist
@@ -118,8 +97,7 @@ https://github.com/dandavison/delta"
 (defun magit-delta-call-delta-and-convert-ansi-escape-sequences ()
   "Call delta on buffer contents and convert ANSI escape sequences to overlays.
 
-The input buffer contents are expected to be raw git output. This
-function is used as the value of `magit-diff-preprocess-git-output-function'."
+The input buffer contents are expected to be raw git output."
   (apply #'call-process-region
          (point-min) (point-max)
          magit-delta-delta-executable t t nil (magit-delta--make-delta-args))
