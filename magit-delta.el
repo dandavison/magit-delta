@@ -68,7 +68,7 @@ will be added if not present.")
   "Use Delta when displaying diffs in Magit.
 
 https://github.com/dandavison/delta"
-  :lighter " magit-delta"
+  :lighter " Magit-Δ"
   :global t
   (let ((magit-faces-to-override
          '(magit-diff-context-highlight
