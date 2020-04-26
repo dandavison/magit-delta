@@ -102,7 +102,15 @@ The input buffer contents are expected to be raw git output."
          (point-min) (point-max)
          magit-delta-delta-executable t t nil (magit-delta--make-delta-args))
   (let ((buffer-read-only nil))
-    (xterm-color-colorize-buffer 'use-overlays)))
+    (xterm-color-colorize-buffer 'use-overlays)
+    (magit-delta-hide-plus-minus-markers)))
+
+(defun magit-delta-hide-plus-minus-markers ()
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^\\(+\\|-\\)" nil t)
+      (let ((ov (make-overlay (match-beginning 0) (match-end 0))))
+        (overlay-put ov 'display " ")))))
 
 (provide 'magit-delta)
 
