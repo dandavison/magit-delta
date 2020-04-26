@@ -1,5 +1,3 @@
-*-- PR  [magit#4091](https://github.com/magit/magit/pull/4091) pending: currently, this must be used with branch [customizable-ansi-color-conversion](https://github.com/dandavison/magit/tree/customizable-ansi-color-conversion) of Magit --*
-
 This Emacs package provides a minor mode which configures [Magit](https://github.com/magit/magit) to use [delta](https://github.com/dandavison/delta) when displaying diffs.
 
 First, install [delta](https://github.com/dandavison/delta) (≥ 0.0.18).
