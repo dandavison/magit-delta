@@ -41,6 +41,9 @@ frame has a light or dark background. See `magit-delta-default-light-theme' and
 --color-only is required in order to use delta with magit; it
 will be added if not present.")
 
+(defvar magit-delta-hide-plus-minus-markers t
+  "Whether to hide the +/- markers at the beginning of diff lines.")
+
 (defun magit-delta--make-delta-args ()
   "Make final list of delta command-line arguments."
   (let ((args magit-delta-delta-args))
@@ -103,7 +106,8 @@ The input buffer contents are expected to be raw git output."
          magit-delta-delta-executable t t nil (magit-delta--make-delta-args))
   (let ((buffer-read-only nil))
     (xterm-color-colorize-buffer 'use-overlays)
-    (magit-delta-hide-plus-minus-markers)))
+    (if magit-delta-hide-plus-minus-markers
+        (magit-delta-hide-plus-minus-markers))))
 
 (defun magit-delta-hide-plus-minus-markers ()
   (save-excursion
