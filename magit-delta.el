@@ -125,8 +125,8 @@ The input buffer contents are expected to be raw git output."
          ((string-equal (match-string 0) "@@")
           (setq in-hunk t))
          (in-hunk
-          (overlay-put (make-overlay (match-beginning 0) (match-end 0))
-                       'display " ")))))))
+          (add-text-properties (match-beginning 0) (match-end 0)
+                               '(display " "))))))))
 
 (provide 'magit-delta)
 
