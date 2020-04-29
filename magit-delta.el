@@ -3,7 +3,7 @@
 ;; Author: Dan Davison <dandavison7@gmail.com>
 ;; URL: https://github.com/dandavison/magit-delta
 ;; Version: 0.1
-;; Package-Requires: ((emacs "24"))
+;; Package-Requires: ((emacs "24") magit xterm-color)
 
 ;;; Commentary:
 
@@ -13,6 +13,10 @@
 ;;
 ;; Use M-x magit-delta-mode to toggle between using Delta, and normal Magit
 ;; behavior.
+
+;; This package depends on truecolor support in xterm-color
+;; (xterm-color@d73867bc8785839e539b6d6dcc881a1e4d3f8def) and `magit-diff-wash-diffs-hook' in magit
+;; (magit@8de6ecf5c5c840f8a964c3e5bd4d7a1aedf04e10).
 
 ;;; Code:
 (require 'magit)
