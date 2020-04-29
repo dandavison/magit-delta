@@ -22,7 +22,7 @@
 (require 'magit)
 (require 'xterm-color)
 
-(defvar magit-delta-delta-executable "delta"
+(defvar magit-delta-delta-executable "/usr/local/bin/delta"
   "The delta executable on your system to be used by Magit.")
 
 (defvar magit-delta-default-light-theme "GitHub"
@@ -116,9 +116,17 @@ The input buffer contents are expected to be raw git output."
 (defun magit-delta-hide-plus-minus-markers ()
   (save-excursion
     (goto-char (point-min))
-    (while (re-search-forward "^\\(+\\|-\\)" nil t)
-      (let ((ov (make-overlay (match-beginning 0) (match-end 0))))
-        (overlay-put ov 'display " ")))))
+    ;; Within hunks, hide - or + at the start of a line.
+    (let ((in-hunk nil))
+      (while (re-search-forward "^\\(diff\\|@@\\|+\\|-\\)" nil t)
+        (cond
+         ((string-equal (match-string 0) "diff")
+          (setq in-hunk nil))
+         ((string-equal (match-string 0) "@@")
+          (setq in-hunk t))
+         (in-hunk
+          (overlay-put (make-overlay (match-beginning 0) (match-end 0))
+                       'display " ")))))))
 
 (provide 'magit-delta)
 
