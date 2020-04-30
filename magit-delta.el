@@ -22,7 +22,7 @@
 (require 'magit)
 (require 'xterm-color)
 
-(defvar magit-delta-delta-executable "/usr/local/bin/delta"
+(defvar magit-delta-delta-executable "delta"
   "The delta executable on your system to be used by Magit.")
 
 (defvar magit-delta-default-light-theme "GitHub"
