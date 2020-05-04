@@ -3,7 +3,7 @@
 ;; Author: Dan Davison <dandavison7@gmail.com>
 ;; URL: https://github.com/dandavison/magit-delta
 ;; Version: 0.1
-;; Package-Requires: ((emacs "25.1") (magit "2.90.1") (xterm-color "1.9"))
+;; Package-Requires: ((emacs "25.1") magit xterm-color)
 
 ;;; Commentary:
 
@@ -13,6 +13,10 @@
 ;;
 ;; Use M-x magit-delta-mode to toggle between using Delta, and normal Magit
 ;; behavior.
+
+;; This package depends on truecolor support in xterm-color
+;; (xterm-color@d73867bc8785839e539b6d6dcc881a1e4d3f8def) and `magit-diff-wash-diffs-hook' in magit
+;; (magit@8de6ecf5c5c840f8a964c3e5bd4d7a1aedf04e10).
 
 ;;; Code:
 (require 'magit)
@@ -113,9 +117,17 @@ The input buffer contents are expected to be raw git output."
 (defun magit-delta-hide-plus-minus-markers ()
   (save-excursion
     (goto-char (point-min))
-    (while (re-search-forward "^\\(+\\|-\\)" nil t)
-      (let ((ov (make-overlay (match-beginning 0) (match-end 0))))
-        (overlay-put ov 'display " ")))))
+    ;; Within hunks, hide - or + at the start of a line.
+    (let ((in-hunk nil))
+      (while (re-search-forward "^\\(diff\\|@@\\|+\\|-\\)" nil t)
+        (cond
+         ((string-equal (match-string 0) "diff")
+          (setq in-hunk nil))
+         ((string-equal (match-string 0) "@@")
+          (setq in-hunk t))
+         (in-hunk
+          (add-text-properties (match-beginning 0) (match-end 0)
+                               '(display " "))))))))
 
 (provide 'magit-delta)
 
