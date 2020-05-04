@@ -3,7 +3,7 @@
 ;; Author: Dan Davison <dandavison7@gmail.com>
 ;; URL: https://github.com/dandavison/magit-delta
 ;; Version: 0.1
-;; Package-Requires: ((emacs "24") magit xterm-color)
+;; Package-Requires: ((emacs "25.1") magit xterm-color)
 
 ;;; Commentary:
 
@@ -21,6 +21,7 @@
 ;;; Code:
 (require 'magit)
 (require 'xterm-color)
+(require 'dash)
 
 (defvar magit-delta-delta-executable "delta"
   "The delta executable on your system to be used by Magit.")
