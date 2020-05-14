@@ -114,6 +114,7 @@ The input buffer contents are expected to be raw git output."
         (magit-delta-hide-plus-minus-markers))))
 
 (defun magit-delta-hide-plus-minus-markers ()
+  "Apply text properties to hide the +/- markers at the beginning of lines."
   (save-excursion
     (goto-char (point-min))
     ;; Within hunks, hide - or + at the start of a line.
