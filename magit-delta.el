@@ -3,7 +3,7 @@
 ;; Author: Dan Davison <dandavison7@gmail.com>
 ;; URL: https://github.com/dandavison/magit-delta
 ;; Version: 0.1
-;; Package-Requires: ((emacs "25.1") magit (xterm-color "2.0"))
+;; Package-Requires: ((emacs "25.1") (magit "20200426") (xterm-color "2.0"))
 
 ;; SPDX-License-Identifier: MIT
 
