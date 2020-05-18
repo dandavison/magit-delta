@@ -5,6 +5,8 @@
 ;; Version: 0.1
 ;; Package-Requires: ((emacs "25.1") magit (xterm-color "2.0"))
 
+;; SPDX-License-Identifier: MIT
+
 ;;; Commentary:
 
 ;; This package integrates Delta (https://github.com/dandavison/delta) with
