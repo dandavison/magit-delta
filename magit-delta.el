@@ -16,9 +16,6 @@
 ;; Use M-x magit-delta-mode to toggle between using Delta, and normal Magit
 ;; behavior.
 
-;; This package depends on `magit-diff-wash-diffs-hook' in magit
-;; (magit@8de6ecf5c5c840f8a964c3e5bd4d7a1aedf04e10).
-
 ;;; Code:
 (require 'magit)
 (require 'xterm-color)
