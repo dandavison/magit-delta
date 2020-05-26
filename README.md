@@ -1,22 +1,8 @@
 This Emacs package provides a minor mode which configures [Magit](https://github.com/magit/magit) to use [delta](https://github.com/dandavison/delta) when displaying diffs.
 
-First, install [delta](https://github.com/dandavison/delta) (≥ 0.0.18).
-
-Next, you need recent versions of both Magit and [xterm-color](https://github.com/atomontage/xterm-color):
-
-```
-M-x package-delete magit
-M-x-package-install magit
-
-M-x package-delete xterm-color
-M-x-package-install xterm-color
-```
-
-Then load `magit-delta.el` from this repo and use:
-
-```
-M-x magit-delta-mode
-```
+1. Install [delta](https://github.com/dandavison/delta) (≥ 0.0.18).
+2. Install magit-delta from [MELPA](https://melpa.org/#/getting-started).
+3. Use `M-x magit-delta-mode` to toggle between using delta, and normal magit behavior.
 
 <br>
 <br>
