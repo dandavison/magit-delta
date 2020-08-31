@@ -118,7 +118,7 @@ The input buffer contents are expected to be raw git output."
     (goto-char (point-min))
     ;; Within hunks, hide - or + at the start of a line.
     (let ((in-hunk nil))
-      (while (re-search-forward "^\\(diff\\|@@\\|+\\|-\\)" nil t)
+      (while (re-search-forward "^\\(diff\\|@@\\|\\+\\|-\\)" nil t)
         (cond
          ((string-equal (match-string 0) "diff")
           (setq in-hunk nil))
