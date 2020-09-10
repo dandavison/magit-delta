@@ -1,6 +1,6 @@
 This Emacs package provides a minor mode which configures [Magit](https://github.com/magit/magit) to use [delta](https://github.com/dandavison/delta) when displaying diffs.
 
-1. Install [delta](https://github.com/dandavison/delta) (≥ 0.0.18).
+1. Install [delta](https://github.com/dandavison/delta).
 2. Install magit-delta from [MELPA](https://melpa.org/#/getting-started).
 3. Use `M-x magit-delta-mode` to toggle between using delta, and normal magit behavior.
 
