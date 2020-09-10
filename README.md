@@ -10,6 +10,8 @@ This Emacs package provides a minor mode which configures [Magit](https://github
   <img width=500px src="https://user-images.githubusercontent.com/52205/80056404-23745500-84f2-11ea-9ecd-832376faf2f1.png" alt="image" />
 </td></tr></table>
 
+If you run emacs as a terminal application (`emacs -nw`) and colors are not being rendered correctly, then follow the instructions here: https://www.gnu.org/software/emacs/manual/html_node/efaq/Colors-on-a-TTY.html.
+
 
 ### Credit
 - [magit](https://github.com/magit/magit)
