@@ -70,7 +70,6 @@ will be added if not present.")
 
 https://github.com/dandavison/delta"
   :lighter " Magit-Δ"
-  :global t
   (let ((magit-faces-to-override
          '(magit-diff-context-highlight
            magit-diff-added
