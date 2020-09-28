@@ -3,6 +3,10 @@ This Emacs package provides a minor mode which configures [Magit](https://github
 1. Install [delta](https://github.com/dandavison/delta).
 2. Install magit-delta from [MELPA](https://melpa.org/#/getting-started).
 3. Use `M-x magit-delta-mode` to toggle between using delta, and normal magit behavior.
+   To activate it automatically:
+    ```emacs-lisp
+    (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
+    ```
 
 <br>
 <br>
