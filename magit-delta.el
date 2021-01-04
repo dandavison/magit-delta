@@ -21,16 +21,27 @@
 (require 'xterm-color)
 (require 'dash)
 
-(defvar magit-delta-delta-executable "delta"
-  "The delta executable on your system to be used by Magit.")
+(defgroup magit-delta nil
+  "Magit delta customizations."
+  :group 'magit-diff
+  :group 'magit-modes)
 
-(defvar magit-delta-default-light-theme "GitHub"
-  "The default color theme when Emacs has a light background.")
+(defcustom magit-delta-delta-executable "delta"
+  "The delta executable on your system to be used by Magit."
+  :type 'string
+  :group 'magit-delta)
 
-(defvar magit-delta-default-dark-theme "Monokai Extended"
-  "The default color theme when Emacs has a dark background.")
+(defcustom magit-delta-default-light-theme "GitHub"
+  "The default color theme when Emacs has a light background."
+  :type 'string
+  :group 'magit-delta)
 
-(defvar magit-delta-delta-args
+(defcustom magit-delta-default-dark-theme "Monokai Extended"
+  "The default color theme when Emacs has a dark background."
+  :type 'string
+  :group 'magit-delta)
+
+(defcustom magit-delta-delta-args
   `("--max-line-distance" "0.6"
     "--24-bit-color" ,(if xterm-color--support-truecolor "always" "never")
     "--color-only")
@@ -42,10 +53,15 @@ frame has a light or dark background. See `magit-delta-default-light-theme' and
 `magit-delta-default-dark-theme'.
 
 --color-only is required in order to use delta with magit; it
-will be added if not present.")
+will be added if not present."
+  :type '(repeat string)
+  :group 'magit-delta)
 
-(defvar magit-delta-hide-plus-minus-markers t
-  "Whether to hide the +/- markers at the beginning of diff lines.")
+(defcustom magit-delta-hide-plus-minus-markers t
+  "Whether to hide the +/- markers at the beginning of diff lines."
+  :type '(choice (const :tag "Hide" t)
+                 (const :tag "Show" nil))
+  :group 'magit-delta)
 
 (defun magit-delta--make-delta-args ()
   "Make final list of delta command-line arguments."
