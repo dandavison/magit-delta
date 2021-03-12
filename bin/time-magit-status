@@ -1,0 +1,32 @@
+#!/bin/sh
+:;exec emacs --quick --load "$0" "$@"
+(defun -install-package (package)
+  (unless (package-installed-p package)
+    (package-refresh-contents)
+    (package-install package)))
+
+(setq package-archives '(("melpa" . "http://melpa.org/packages/")))
+(package-initialize)
+(-install-package 'magit)
+(-install-package 'magit-delta)
+
+(setq use-magit-delta (let ((val (getenv "USE_MAGIT_DELTA")))
+                        (and val
+                             (not (string-equal val ""))
+                             (not (string-equal val "0")))))
+
+(princ (format "magit-delta %s\n" (if use-magit-delta "on" "off"))
+       #'external-debugging-output)
+
+(defun time-magit-status ()
+  (interactive)
+  (let ((start-time (time-to-seconds (current-time))))
+    (magit-status)
+    (princ (format "magit-status took %.1f seconds\n"
+                   (- (time-to-seconds (current-time)) start-time))
+           #'external-debugging-output)))
+
+(when use-magit-delta
+  (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1))))
+(time-magit-status)
+(kill-emacs)
