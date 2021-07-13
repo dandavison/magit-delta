@@ -7,6 +7,12 @@ This Emacs package provides a minor mode which configures [Magit](https://github
     ```emacs-lisp
     (add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
     ```
+    
+    Or with `use-package`
+    ```emacs-lisp
+    (use-package magit-delta
+      :hook (magit-mode . magit-delta-mode))
+    ```
 
 <br>
 <br>
