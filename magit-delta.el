@@ -43,7 +43,7 @@
 
 (defcustom magit-delta-delta-args
   `("--max-line-distance" "0.6"
-    "--24-bit-color" ,(if xterm-color--support-truecolor "always" "never")
+    "--true-color" ,(if xterm-color--support-truecolor "always" "never")
     "--color-only")
   "Delta command line arguments as a list of strings.
 
@@ -66,9 +66,9 @@ will be added if not present."
 (defun magit-delta--make-delta-args ()
   "Make final list of delta command-line arguments."
   (let ((args magit-delta-delta-args))
-    (unless (-intersection '("--theme" "--light" "--dark") args)
+    (unless (-intersection '("--syntax-theme" "--light" "--dark") args)
       (setq args (nconc
-                  (list "--theme"
+                  (list "--syntax-theme"
                         (if (eq (frame-parameter nil 'background-mode) 'dark)
                             magit-delta-default-dark-theme
                           magit-delta-default-light-theme))
