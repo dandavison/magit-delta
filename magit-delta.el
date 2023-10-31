@@ -63,6 +63,13 @@ will be added if not present."
                  (const :tag "Show" nil))
   :group 'magit-delta)
 
+(defcustom magit-delta-max-lines 1000
+  "Don't use delta if length of the buffer is greater than specified.
+This setting is needed to avoid situations when delta will freezes
+the whole Emacs when trying to process extremely large diff"
+  :type 'integer
+  :group 'magit-delta)
+
 (defun magit-delta--make-delta-args ()
   "Make final list of delta command-line arguments."
   (let ((args magit-delta-delta-args))
@@ -86,36 +93,46 @@ will be added if not present."
 
 https://github.com/dandavison/delta"
   :lighter " Δ"
+
+  (cond
+   (magit-delta-mode
+    (add-hook 'magit-diff-wash-diffs-hook #'magit-delta-apply-delta-to-diffs-maybe)
+    (setq magit-delta--magit-diff-refine-hunk--orig-value
+          magit-diff-refine-hunk))
+   ('deactivate
+    (remove-hook 'magit-diff-wash-diffs-hook #'magit-delta-apply-delta-to-diffs-maybe))))
+
+(defun magit-delta-apply-delta-to-diffs-maybe ()
+  "Apply delta to diffs in current magit buffer.
+
+If buffer length is more than `magit-delta-max-lines' lines,
+fall back to default diff highlighting."
   (let ((magit-faces-to-override
          '(magit-diff-context-highlight
            magit-diff-added
            magit-diff-added-highlight
            magit-diff-removed
            magit-diff-removed-highlight)))
-    (cond
-     (magit-delta-mode
-      (add-hook 'magit-diff-wash-diffs-hook #'magit-delta-call-delta-and-convert-ansi-escape-sequences)
-      (setq magit-delta--magit-diff-refine-hunk--orig-value
-            magit-diff-refine-hunk
+    (if (and magit-delta-max-lines
+             (> (line-number-at-pos (point-max)) magit-delta-max-lines))
+        (progn (message "Buffer is too large, diff preview with delta disabled!")
+               (setq magit-diff-refine-hunk
+                     magit-delta--magit-diff-refine-hunk--orig-value
 
-            magit-diff-refine-hunk
+                     face-remapping-alist
+                     (--remove (member (car it) magit-faces-to-override)
+                               face-remapping-alist)))
+      (setq magit-diff-refine-hunk
             nil
 
             face-remapping-alist
             (nconc
              (--remove (member (car it) magit-faces-to-override)
                        face-remapping-alist)
-             (--map (cons it 'default) magit-faces-to-override))))
-     ('deactivate
-      (remove-hook 'magit-diff-wash-diffs-hook #'magit-delta-call-delta-and-convert-ansi-escape-sequences)
-      (setq magit-diff-refine-hunk
-            magit-delta--magit-diff-refine-hunk--orig-value
+             (--map (cons it 'default) magit-faces-to-override)))
+      (magit-delta--call-delta-and-convert-ansi-escape-sequences))))
 
-            face-remapping-alist
-            (--remove (member (car it) magit-faces-to-override)
-                      face-remapping-alist))))))
-
-(defun magit-delta-call-delta-and-convert-ansi-escape-sequences ()
+(defun magit-delta--call-delta-and-convert-ansi-escape-sequences ()
   "Call delta on buffer contents and convert ANSI escape sequences to overlays.
 
 The input buffer contents are expected to be raw git output."
