@@ -63,6 +63,13 @@ will be added if not present."
                  (const :tag "Show" nil))
   :group 'magit-delta)
 
+(defcustom magit-delta-max-size 50000
+  "Don't use delta if length of the buffer is greater than specified.
+This setting is needed to avoid situations when delta will freezes
+the whole Emacs when trying to process extremely large diff"
+  :type 'integer
+  :group 'magit-delta)
+
 (defun magit-delta--make-delta-args ()
   "Make final list of delta command-line arguments."
   (let ((args magit-delta-delta-args))
@@ -75,9 +82,28 @@ will be added if not present."
                        args)))
     (unless (member "--color-only" args)
       (setq args (cons "--color-only" args)))
+    (setq args (nconc
+                `("--plus-style"
+                  ,(format "syntax \"%s\""
+                           (face-attribute 'diff-added :background))
+                  "--plus-emph-style"
+                  ,(format "syntax \"%s\""
+                           (face-attribute 'diff-refine-added :background))
+                  "--minus-emph-style"
+                  ,(format "syntax \"%s\""
+                           (face-attribute 'diff-refine-removed :background))
+                  "--minus-style"
+                  ,(format "normal \"%s\""
+                           (face-attribute 'diff-removed :background)))
+                args))
     args))
 
 (defvar magit-delta--magit-diff-refine-hunk--orig-value nil)
+(defvar magit-delta--magit-diff-added-highlight--orig-value nil)
+(defvar magit-delta--magit-diff-added--orig-value nil)
+(defvar magit-delta--magit-diff-removed-highlight--orig-value nil)
+(defvar magit-delta--magit-diff-removed--orig-value nil)
+(defvar magit-delta--initialized nil)
 
 
 ;;;###autoload
@@ -86,14 +112,11 @@ will be added if not present."
 
 https://github.com/dandavison/delta"
   :lighter " Δ"
-  (let ((magit-faces-to-override
-         '(magit-diff-context-highlight
-           magit-diff-added
-           magit-diff-added-highlight
-           magit-diff-removed
-           magit-diff-removed-highlight)))
-    (cond
-     (magit-delta-mode
+  :global t
+  (cond
+   (magit-delta-mode
+    ;; Avoid running this code multiple times since this is not idempotent
+    (unless magit-delta--initialized
       (add-hook 'magit-diff-wash-diffs-hook #'magit-delta-call-delta-and-convert-ansi-escape-sequences)
       (setq magit-delta--magit-diff-refine-hunk--orig-value
             magit-diff-refine-hunk
@@ -101,31 +124,54 @@ https://github.com/dandavison/delta"
             magit-diff-refine-hunk
             nil
 
-            face-remapping-alist
-            (nconc
-             (--remove (member (car it) magit-faces-to-override)
-                       face-remapping-alist)
-             (--map (cons it 'default) magit-faces-to-override))))
-     ('deactivate
-      (remove-hook 'magit-diff-wash-diffs-hook #'magit-delta-call-delta-and-convert-ansi-escape-sequences)
-      (setq magit-diff-refine-hunk
-            magit-delta--magit-diff-refine-hunk--orig-value
+            magit-delta--magit-diff-added-highlight--orig-value
+            (face-attribute 'magit-diff-added-highlight :background)
 
-            face-remapping-alist
-            (--remove (member (car it) magit-faces-to-override)
-                      face-remapping-alist))))))
+            magit-delta--magit-diff-added--orig-value
+            (face-attribute 'magit-diff-added :background)
+
+            magit-delta--magit-diff-removed-highlight--orig-value
+            (face-attribute 'magit-diff-removed-highlight :background)
+
+            magit-delta--magit-diff-removed--orig-value
+            (face-attribute 'magit-diff-removed :background))
+
+      (set-face-attribute 'magit-diff-added-highlight nil
+                          :background (face-attribute 'diff-added :background))
+      (set-face-attribute 'magit-diff-added nil
+                          :background (face-attribute 'diff-added :background))
+      (set-face-attribute 'magit-diff-removed-highlight nil
+                          :background (face-attribute 'diff-removed :background))
+      (set-face-attribute 'magit-diff-removed nil
+                          :background (face-attribute 'diff-removed :background))
+      (setq magit-delta--initialized t)))
+   ('deactivate
+    (remove-hook 'magit-diff-wash-diffs-hook #'magit-delta-call-delta-and-convert-ansi-escape-sequences)
+    (setq magit-diff-refine-hunk
+          magit-delta--magit-diff-refine-hunk--orig-value)
+
+    (set-face-attribute 'magit-diff-added-highlight nil
+                        :background magit-delta--magit-diff-added-highlight--orig-value)
+    (set-face-attribute 'magit-diff-added nil
+                        :background magit-delta--magit-diff-added--orig-value)
+    (set-face-attribute 'magit-diff-removed-highlight nil
+                        :background magit-delta--magit-diff-removed-highlight--orig-value)
+    (set-face-attribute 'magit-diff-removed nil
+                        :background magit-delta--magit-diff-removed--orig-value)
+    (setq magit-delta--initialized nil))))
 
 (defun magit-delta-call-delta-and-convert-ansi-escape-sequences ()
   "Call delta on buffer contents and convert ANSI escape sequences to overlays.
 
 The input buffer contents are expected to be raw git output."
-  (apply #'call-process-region
-         (point-min) (point-max)
-         magit-delta-delta-executable t t nil (magit-delta--make-delta-args))
-  (let ((buffer-read-only nil))
-    (xterm-color-colorize-buffer 'use-overlays)
-    (if magit-delta-hide-plus-minus-markers
-        (magit-delta-hide-plus-minus-markers))))
+  (unless (and magit-delta-max-size (> (point-max) magit-delta-max-size))
+    (apply #'call-process-region
+           (point-min) (point-max)
+           magit-delta-delta-executable t t nil (magit-delta--make-delta-args))
+    (let ((buffer-read-only nil))
+      (xterm-color-colorize-buffer 'use-overlays)
+      (if magit-delta-hide-plus-minus-markers
+          (magit-delta-hide-plus-minus-markers)))))
 
 (defun magit-delta-hide-plus-minus-markers ()
   "Apply text properties to hide the +/- markers at the beginning of lines."
