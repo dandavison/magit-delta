@@ -99,6 +99,11 @@ the whole Emacs when trying to process extremely large diff"
     args))
 
 (defvar magit-delta--magit-diff-refine-hunk--orig-value nil)
+(defvar magit-delta--magit-diff-added-highlight--orig-value nil)
+(defvar magit-delta--magit-diff-added--orig-value nil)
+(defvar magit-delta--magit-diff-removed-highlight--orig-value nil)
+(defvar magit-delta--magit-diff-removed--orig-value nil)
+(defvar magit-delta--initialized nil)
 
 
 ;;;###autoload
@@ -110,24 +115,26 @@ https://github.com/dandavison/delta"
   :global t
   (cond
    (magit-delta-mode
-    (add-hook 'magit-diff-wash-diffs-hook #'magit-delta-call-delta-and-convert-ansi-escape-sequences)
-    (setq magit-delta--magit-diff-refine-hunk--orig-value
-          magit-diff-refine-hunk
+    ;; Avoid running this code multiple times since this is not idempotent
+    (unless magit-delta--initialized
+      (add-hook 'magit-diff-wash-diffs-hook #'magit-delta-call-delta-and-convert-ansi-escape-sequences)
+      (setq magit-delta--magit-diff-refine-hunk--orig-value
+            magit-diff-refine-hunk
 
-          magit-diff-refine-hunk
-          nil
+            magit-diff-refine-hunk
+            nil
 
-          magit-diff-added-highlight--orig-value
-          (face-attribute 'magit-diff-added-highlight :background)
+            magit-delta--magit-diff-added-highlight--orig-value
+            (face-attribute 'magit-diff-added-highlight :background)
 
-          magit-diff-added--orig-value
-          (face-attribute 'magit-diff-added :background)
+            magit-delta--magit-diff-added--orig-value
+            (face-attribute 'magit-diff-added :background)
 
-          magit-diff-removed-highlight--orig-value
-          (face-attribute 'magit-diff-removed-highlight :background)
+            magit-delta--magit-diff-removed-highlight--orig-value
+            (face-attribute 'magit-diff-removed-highlight :background)
 
-          magit-diff-removed--orig-value
-          (face-attribute 'magit-diff-removed :background))
+            magit-delta--magit-diff-removed--orig-value
+            (face-attribute 'magit-diff-removed :background))
 
       (set-face-attribute 'magit-diff-added-highlight nil
                           :background (face-attribute 'diff-added :background))
@@ -136,20 +143,22 @@ https://github.com/dandavison/delta"
       (set-face-attribute 'magit-diff-removed-highlight nil
                           :background (face-attribute 'diff-removed :background))
       (set-face-attribute 'magit-diff-removed nil
-                          :background (face-attribute 'diff-removed :background)))
+                          :background (face-attribute 'diff-removed :background))
+      (setq magit-delta--initialized t)))
    ('deactivate
     (remove-hook 'magit-diff-wash-diffs-hook #'magit-delta-call-delta-and-convert-ansi-escape-sequences)
     (setq magit-diff-refine-hunk
           magit-delta--magit-diff-refine-hunk--orig-value)
 
     (set-face-attribute 'magit-diff-added-highlight nil
-                        :background magit-diff-added-highlight--orig-value)
+                        :background magit-delta--magit-diff-added-highlight--orig-value)
     (set-face-attribute 'magit-diff-added nil
-                        :background magit-diff-added--orig-value)
+                        :background magit-delta--magit-diff-added--orig-value)
     (set-face-attribute 'magit-diff-removed-highlight nil
-                        :background magit-diff-removed-highlight--orig-value)
+                        :background magit-delta--magit-diff-removed-highlight--orig-value)
     (set-face-attribute 'magit-diff-removed nil
-                        :background magit-diff-removed--orig-value))))
+                        :background magit-delta--magit-diff-removed--orig-value)
+    (setq magit-delta--initialized nil))))
 
 (defun magit-delta-call-delta-and-convert-ansi-escape-sequences ()
   "Call delta on buffer contents and convert ANSI escape sequences to overlays.
