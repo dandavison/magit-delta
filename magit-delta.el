@@ -3,7 +3,7 @@
 ;; Author: Dan Davison <dandavison7@gmail.com>
 ;; URL: https://github.com/dandavison/magit-delta
 ;; Version: 0.1
-;; Package-Requires: ((emacs "25.1") (magit "20200426") (xterm-color "2.0"))
+;; Package-Requires: ((emacs "25.1") (magit "3.0") (xterm-color "2.0") (dash "2.18"))
 
 ;; SPDX-License-Identifier: MIT
 
@@ -72,7 +72,7 @@ will be added if not present."
                         (if (eq (frame-parameter nil 'background-mode) 'dark)
                             magit-delta-default-dark-theme
                           magit-delta-default-light-theme))
-                       args)))
+                  args)))
     (unless (member "--color-only" args)
       (setq args (cons "--color-only" args)))
     args))
